@@ -10,10 +10,7 @@ app.config['SECRET_KEY'] = "my secret key"
 # create a route decaretor
 @app.route('/')
 def index():
-    first_name = "John"
-    stuff = "this is <strong>Bald</strong>"
-    return render_template("index.html", first_name=first_name,
-                           stuff=stuff)
+    return render_template("index.html")
 
 @app.route('/user/<name>')
 def user(name):
