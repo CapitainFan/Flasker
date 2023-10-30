@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -27,7 +27,6 @@ def page_not_found(e):
 def page_not_found(e):
     return render_template('500.html'), 500
 
-
 class NameForm(FlaskForm):
     name = StringField("What your name?", validators=[DataRequired()])
     submit = SubmitField("Submit")
@@ -40,4 +39,6 @@ def name():
     if form.validate_on_submit():
         name = form.name.data
         form.name.data = ''
+        flash("Form Submitted Succsesfuly")
+
     return render_template('name.html', name=name, form=form)
