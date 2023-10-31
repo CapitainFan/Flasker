@@ -78,3 +78,6 @@ def add_user():
         flash('User Added Successfully')
     our_users = Users.query.order_by(Users.date_added)
     return render_template('add_user.html', name=name, form=form, our_users=our_users)
+
+# app.app_context().push()
+# db.create_all()
