@@ -21,3 +21,6 @@ git push -u origin main
 
 # app.app_context().push()
 # db.create_all()
+
+username : root
+password : 'my classic password'
