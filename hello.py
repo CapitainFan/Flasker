@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -14,6 +14,36 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password123@localh
 app.config['SECRET_KEY'] = "my secret key"
 
 db = SQLAlchemy(app)
+
+@app.route('/update/<int:id>', methods=['POST','GET'])
+def update(id):
+    form = UserForm()
+    name_to_update = Users.query.get_or_404(id)
+    if request.method == "POST":
+        name_to_update.name = request.form['name']
+        name_to_update.email = request.form['email']
+        try:
+            db.session.commit()
+            flash("User updated successfully!")
+            return render_template(
+                "update.html",
+                form=form,
+                name_to_update=name_to_update
+            )
+        except:
+            flash("Error! Looks like something went wrong...")
+            return render_template(
+                "update.html",
+                form=form,
+                name_to_update=name_to_update
+            )
+    else:
+        return render_template(
+                "update.html",
+                form=form,
+                name_to_update=name_to_update
+            )
+
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
