@@ -63,7 +63,8 @@ def update(id):
         return render_template(
                 "update.html",
                 form=form,
-                name_to_update=name_to_update
+                name_to_update=name_to_update,
+                id=id
             )
 
 
