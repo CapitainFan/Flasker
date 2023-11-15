@@ -24,3 +24,8 @@ git push -u origin main
 
 username : root
 password : 'my classic password'
+
+flask db init   # uses only one time
+
+flask db migrate -m "comment"
+flask db upgrade
