@@ -22,7 +22,7 @@
         </table>
 
     {% else %}
-        <h1>Update User...</h1>
+        <h1>Update User {{ name_to_update.name }}</h1>
         <br/>
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
         <form action='/update/{{name_to_update.id}}' method="POST">
@@ -42,7 +42,10 @@
         </form>
         </div>
 
-        <br/><br/><br/>
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+            <h2>Return to Add User page?</h2>
+            <a href="{{ url_for('add_user') }}" class="btn btn-primary">Go Back</a> 
+        </div>
 
     {% endif %}
 
