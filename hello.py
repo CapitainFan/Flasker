@@ -68,6 +68,12 @@ def add_post():
 	return render_template('add_post.html', form=form)
 
 
+@app.route('/posts')
+def posts():
+	posts = Posts.query.order_by(Posts.date_posted)
+	return render_template('posts.html', posts=posts)
+
+
 # Json thing
 
 @app.route('/date/')
