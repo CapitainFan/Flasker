@@ -105,6 +105,21 @@ def edit_post(id):
 	return render_template('edit_post.html', form=form)	
 
 
+@app.route('/posts/delet/<int:id>')
+def delete_post(id):
+	post_to_delete = Posts.query.get_or_404(id)
+
+	try:
+		db.session.delete(post_to_delete)
+		db.session.commit()
+		flash('Post was deleted!')
+		posts = Posts.query.order_by(Posts.date_posted)
+		return render_template('posts.html', posts=posts)
+
+	except:
+		flash('Oops, there was a problem, try again ...')
+		posts = Posts.query.order_by(Posts.date_posted)
+		return render_template('posts.html', posts=posts)
 
 # Json thing
 
