@@ -10,7 +10,6 @@ from datetime import date
 from wtforms.widgets import TextArea
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
-
 # Create a Flask Instance
 app = Flask(__name__)
 # Add Database
@@ -25,56 +24,84 @@ app.config['SECRET_KEY'] = "my super secret key that no one is supposed to know"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
+# Flask_Login Stuff
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 @login_manager.user_loader
 def load_user(user_id):
 	return Users.query.get(int(user_id))
 
-
+# Create Login Form
 class LoginForm(FlaskForm):
 	username = StringField("Username", validators=[DataRequired()])
 	password = PasswordField("Password", validators=[DataRequired()])
 	submit = SubmitField("Submit")
+	
 
-
-@app.route('/login', methods=['GET','POST'])
+# Create Login Page
+@app.route('/login', methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
-
-	if form.validate_on_submit:
+	if form.validate_on_submit():
 		user = Users.query.filter_by(username=form.username.data).first()
 		if user:
+			# Check the hash
 			if check_password_hash(user.password_hash, form.password.data):
 				login_user(user)
-				flash('Login Succesfull!')
+				flash("Login Succesfull!!")
 				return redirect(url_for('dashboard'))
 			else:
-				flash('Wrong Password - Try again')
+				flash("Wrong Password - Try Again!")
 		else:
-			flash("That user doesn't exist!")
+			flash("That User Doesn't Exist! Try Again...")
+
 
 	return render_template('login.html', form=form)
 
-
-@app.route('/logout', methods=['GET','POST'])
+# Create Logout Page
+@app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
 	logout_user()
-	flash("You have been logout :(")
+	flash("You Have Been Logged Out!  Thanks For Stopping By...")
 	return redirect(url_for('login'))
 
-
-@app.route('/dashboard', methods=['GET','POST'])
+# Create Dashboard Page
+@app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
+	form = UserForm()
+	id = current_user.id
+	name_to_update = Users.query.get_or_404(id)
+	if request.method == "POST":
+		name_to_update.name = request.form['name']
+		name_to_update.email = request.form['email']
+		name_to_update.favorite_color = request.form['favorite_color']
+		name_to_update.username = request.form['username']
+		try:
+			db.session.commit()
+			flash("User Updated Successfully!")
+			return render_template("dashboard.html", 
+				form=form,
+				name_to_update = name_to_update)
+		except:
+			flash("Error!  Looks like there was a problem...try again!")
+			return render_template("dashboard.html", 
+				form=form,
+				name_to_update = name_to_update)
+	else:
+		return render_template("dashboard.html", 
+				form=form,
+				name_to_update = name_to_update,
+				id = id)
+
 	return render_template('dashboard.html')
 
 
+
+# Create a Blog Post model
 class Posts(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(255))
@@ -83,98 +110,110 @@ class Posts(db.Model):
 	date_posted = db.Column(db.DateTime, default=datetime.utcnow)
 	slug = db.Column(db.String(255))
 
-
+# Create a Posts Form
 class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
 	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
-	author = StringField('Author', validators=[DataRequired()])
+	author = StringField("Author", validators=[DataRequired()])
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField("Submit")
 
-
-@app.route('/add_post', methods=['GET', 'POST'])
-def add_post():
-	form = PostForm()
-
-	if form.validate_on_submit():
-		post = Posts(
-			title=form.title.data,
-			content=form.content.data,
-			author=form.author.data,
-			slug=form.slug.data,
-		)
-		# Clear the form
-		form.title.data = ''
-		form.content.data = ''
-		form.author.data = ''
-		form.slug.data = ''
-
-		db.session.add(post)
-		db.session.commit()
-
-		flash('Blog Post Submited Succsessfully')
-
-	return render_template('add_post.html', form=form)
-
-
-@app.route('/posts')
-def posts():
-	posts = Posts.query.order_by(Posts.date_posted)
-	return render_template('posts.html', posts=posts)
-
-
-@app.route('/posts/<int:id>')
-def post(id):
-	post = Posts.query.get_or_404(id)
-	return render_template('post.html', post=post)
-
-
-@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
-def edit_post(id):
-	post = Posts.query.get_or_404(id)
-	form = PostForm()
-
-	if form.validate_on_submit():
-		post.title = form.title.data
-		post.content = form.content.data
-		post.author = form.author.data
-		post.slug = form.slug.data
-
-		db.session.add(post)
-		db.session.commit()
-
-		flash('Post has been updated!')
-		return redirect(url_for('post', id=post.id))
-	
-	form.title.data = post.title
-	form.content.data = post.content
-	form.author.data = post.author
-	form.slug.data = post.slug
-
-	return render_template('edit_post.html', form=form)	
-
-
-@app.route('/posts/delet/<int:id>')
+@app.route('/posts/delete/<int:id>')
 def delete_post(id):
 	post_to_delete = Posts.query.get_or_404(id)
 
 	try:
 		db.session.delete(post_to_delete)
 		db.session.commit()
-		flash('Post was deleted!')
+
+		# Return a message
+		flash("Blog Post Was Deleted!")
+
+		# Grab all the posts from the database
 		posts = Posts.query.order_by(Posts.date_posted)
-		return render_template('posts.html', posts=posts)
+		return render_template("posts.html", posts=posts)
+
 
 	except:
-		flash('Oops, there was a problem, try again ...')
+		# Return an error message
+		flash("Whoops! There was a problem deleting post, try again...")
+
+		# Grab all the posts from the database
 		posts = Posts.query.order_by(Posts.date_posted)
-		return render_template('posts.html', posts=posts)
+		return render_template("posts.html", posts=posts)
 
-# Json thing
 
-@app.route('/date/')
+@app.route('/posts')
+def posts():
+	# Grab all the posts from the database
+	posts = Posts.query.order_by(Posts.date_posted)
+	return render_template("posts.html", posts=posts)
+
+@app.route('/posts/<int:id>')
+def post(id):
+	post = Posts.query.get_or_404(id)
+	return render_template('post.html', post=post)
+
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+	post = Posts.query.get_or_404(id)
+	form = PostForm()
+	if form.validate_on_submit():
+		post.title = form.title.data
+		post.author = form.author.data
+		post.slug = form.slug.data
+		post.content = form.content.data
+		# Update Database
+		db.session.add(post)
+		db.session.commit()
+		flash("Post Has Been Updated!")
+		return redirect(url_for('post', id=post.id))
+	form.title.data = post.title
+	form.author.data = post.author
+	form.slug.data = post.slug
+	form.content.data = post.content
+	return render_template('edit_post.html', form=form)
+
+
+# Add Post Page
+@app.route('/add-post', methods=['GET', 'POST'])
+#@login_required
+def add_post():
+	form = PostForm()
+
+	if form.validate_on_submit():
+		post = Posts(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+		# Clear The Form
+		form.title.data = ''
+		form.content.data = ''
+		form.author.data = ''
+		form.slug.data = ''
+
+		# Add post data to database
+		db.session.add(post)
+		db.session.commit()
+
+		# Return a Message
+		flash("Blog Post Submitted Successfully!")
+
+	# Redirect to the webpage
+	return render_template("add_post.html", form=form)
+
+
+
+# Json Thing
+@app.route('/date')
 def get_current_date():
-	return {'Date': date.today()}
+	favorite_pizza = {
+		"John": "Pepperoni",
+		"Mary": "Cheese",
+		"Tim": "Mushroom"
+	}
+	return favorite_pizza
+	#return {"Date": date.today()}
+
+
 
 
 # Create Model
@@ -244,17 +283,19 @@ def update(id):
 		name_to_update.name = request.form['name']
 		name_to_update.email = request.form['email']
 		name_to_update.favorite_color = request.form['favorite_color']
+		name_to_update.username = request.form['username']
 		try:
 			db.session.commit()
 			flash("User Updated Successfully!")
 			return render_template("update.html", 
 				form=form,
-				name_to_update = name_to_update)
+				name_to_update = name_to_update, id=id)
 		except:
 			flash("Error!  Looks like there was a problem...try again!")
 			return render_template("update.html", 
 				form=form,
-				name_to_update = name_to_update)
+				name_to_update = name_to_update,
+				id=id)
 	else:
 		return render_template("update.html", 
 				form=form,
@@ -334,8 +375,8 @@ def add_user():
 			db.session.add(user)
 			db.session.commit()
 		name = form.name.data
-		form.username.data = ''
 		form.name.data = ''
+		form.username.data = ''
 		form.email.data = ''
 		form.favorite_color.data = ''
 		form.password_hash.data = ''
