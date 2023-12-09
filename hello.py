@@ -10,6 +10,8 @@ from datetime import date
 from wtforms.widgets import TextArea
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
+# Lets clean the code
+
 # Create a Flask Instance
 app = Flask(__name__)
 # Add Database
