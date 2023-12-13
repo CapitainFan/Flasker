@@ -95,6 +95,7 @@ def dashboard():
 
 
 @app.route('/posts/delete/<int:id>')
+@login_required
 def delete_post(id):
 	post_to_delete = Posts.query.get_or_404(id)
 
@@ -154,7 +155,7 @@ def edit_post(id):
 
 # Add Post Page
 @app.route('/add-post', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def add_post():
 	form = PostForm()
 
@@ -191,6 +192,7 @@ def get_current_date():
 
 
 @app.route('/delete/<int:id>')
+@login_required
 def delete(id):
 	user_to_delete = Users.query.get_or_404(id)
 	name = None
@@ -215,6 +217,7 @@ def delete(id):
 
 # Update Database Record
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update(id):
 	form = UserForm()
 	name_to_update = Users.query.get_or_404(id)
@@ -300,6 +303,7 @@ def page_not_found(e):
 
 # Create Password Test Page
 @app.route('/test_pw', methods=['GET', 'POST'])
+@login_required
 def test_pw():
 	email = None
 	password = None
