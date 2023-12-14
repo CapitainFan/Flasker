@@ -30,4 +30,5 @@ password : 'my classic password'
 flask db init   # uses only one time
 
 flask db migrate -m "comment"
+# flask db stamp head
 flask db upgrade
