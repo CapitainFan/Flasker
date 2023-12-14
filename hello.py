@@ -44,9 +44,15 @@ def base():
 @app.route('/search', methods=["POST"])
 def search():
 	form = SearchForm()
+	posts = Posts.query
 	if form.validate_on_submit():
+		# Gets data from submited form
 		post.searched = form.searched.data
-		return render_template('search.html', form=form, searched=post.searched)
+		# Query the Database
+		posts = posts.filter(Posts.content.like('%' + post.searched + '%'))
+		posts = posts.order_by(Posts.title).all()
+
+		return render_template('search.html', form=form, searched=post.searched, posts=posts)
 
 
 # Create Login Page
