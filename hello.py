@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from webforms import LoginForm, PostForm, UserForm, PasswordForm, NamerForm
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from webforms import LoginForm, PostForm, UserForm, PasswordForm, NamerForm
+
+from webforms import LoginForm, PostForm, UserForm, PasswordForm, NamerForm, SearchForm
 
 
 # Create a Flask Instance
@@ -32,6 +33,20 @@ login_manager.login_view = 'login'
 def load_user(user_id):
 	return Users.query.get(int(user_id))
 
+
+# Pass Stuff To Navbar
+@app.context_processor
+def base():
+	form = SearchForm()
+	return dict(form=form)
+
+
+@app.route('/search', methods=["POST"])
+def search():
+	form = SearchForm()
+	if form.validate_on_submit():
+		post.searched = form.searched.data
+		return render_template('search.html', form=form, searched=post.searched)
 
 
 # Create Login Page
@@ -209,10 +224,6 @@ def get_current_date():
 	}
 	return favorite_pizza
 	#return {"Date": date.today()}
-
-
-
-
 
 
 @app.route('/delete/<int:id>')
