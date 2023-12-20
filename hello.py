@@ -44,6 +44,18 @@ def base():
 	return dict(form=form)
 
 
+# Create Admin Page
+@app.route('/admin')
+@login_required
+def admin():
+	id = current_user.id
+	if id == 1:
+		return render_template("admin.html")
+	else:
+		flash('You must be the Admin to access the Admin page')
+		return redirect(url_for('dashboard'))
+
+
 @app.route('/search', methods=["POST"])
 def search():
 	form = SearchForm()
@@ -116,10 +128,6 @@ def dashboard():
 				id = id)
 
 	return render_template('dashboard.html')
-
-
-
-
 
 
 @app.route('/posts/delete/<int:id>')
