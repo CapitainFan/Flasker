@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms.widgets import TextArea
+from flask_ckeditor import CKEditorField
 
 
 # Create A Search Form
@@ -20,8 +21,9 @@ class LoginForm(FlaskForm):
 # Create a Posts Form
 class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
-	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
-	#author = StringField("Author")
+#	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+	content = CKEditorField("Content", validators=[DataRequired()])
+#	author = StringField("Author")
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField("Submit")
 
@@ -35,10 +37,12 @@ class UserForm(FlaskForm):
 	password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
 	submit = SubmitField("Submit")
 
+
 class PasswordForm(FlaskForm):
 	email = StringField("What's Your Email", validators=[DataRequired()])
 	password_hash = PasswordField("What's Your Password", validators=[DataRequired()])
 	submit = SubmitField("Submit")
+
 
 # Create a Form Class
 class NamerForm(FlaskForm):
