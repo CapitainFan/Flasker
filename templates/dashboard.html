@@ -22,15 +22,14 @@
     {{ current_user.name }}
   </div>
   <div class="card-body">
-    <h5 class="card-title">Welcome To Your User Dashboard...</h5>
+   
     <p class="card-text">
 
-	<div class="container">
+<div class="container">
 	<div class="row">
-	<div class="col-8">
+		<div class="col-8">
 
-
-    	<strong>Name:</strong>
+    <strong>Name:</strong>
 	{{ current_user.name }}<br/>
 
 	<strong>Username:</strong>
@@ -45,14 +44,17 @@
 	<strong>Favorite Color:</strong>
 	{{ current_user.favorite_color }}<br/>
 
-	<strong>Date Joined:</strong>
-	{{ current_user.date_added }}<br/>
-
 	<strong>About Author:</strong>
 	{{ current_user.about_author }}<br/>
 
 	<strong>Profile Pic:</strong>
 	{{ current_user.profile_pic }}<br/>
+
+	<strong>Date Joined:</strong>
+	{{ current_user.date_added }}<br/>
+
+
+	
 
     	
     </p>
@@ -61,17 +63,27 @@
     <a href="{{ url_for('update', id=current_user.id)}}" class="btn btn-secondary btn-sm">Update Profile</a>
 
     <a href="{{ url_for('delete', id=current_user.id)}}" class="btn btn-danger btn-sm">Delete</a>
+    <br/><br/>
 
-</div>
+    
+	</div>
+	<div class="col-4">
+		{% if current_user.profile_pic %}
 
-<div class="col-4">
-	<img src="{{ url_for('static', filename='images/default_profile_pic.png')}}" width="150" align="right">
-</div>
+		<img src="{{ url_for('static', filename='images/' + current_user.profile_pic)}}" width="200" align="right">
+		
+		{% else %}
 
-</div>
-</div>
+		<img src="{{ url_for('static', filename='images/default_profile_pic.png')}}" width="200" align="right">
 
-</div>
+		{% endif %}
+	
+	</div>
+	</div>
+	</div>
+
+
+  </div>
 </div>
 	
 
@@ -109,15 +121,18 @@
 
 		{{ form.about_author.label(class="form-label") }}
 
-		<textarea name="about_author" class="form-control">{{name_to_update.about_author}}</textarea>
+		<textarea name="about_author" class="form-control">{{ name_to_update.about_author }}</textarea>
 		<br/>
 
 		{{ form.profile_pic.label(class="form-label") }}
 
 		{{ form.profile_pic(class="form-control", value=name_to_update.profile_pic) }}
+		
+
 		<br/>
 		
 		{{ form.submit(class="btn btn-secondary btn-sm") }}
+			
 
 		
 
