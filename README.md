@@ -14,7 +14,7 @@ Bootstrap - https://getbootstrap.com/docs/5.3/getting-started/introduction/
 ### Запуск проекта в dev-режиме
 - Установите и активируйте виртуальное окружение
 - Установите зависимости из файла requirements.txt
-- В папке с файлом manage.py выполните команду:
+- В папке с кодом выполните команду:
 ```
 python -m venv virt
 source virt/bin/activate
